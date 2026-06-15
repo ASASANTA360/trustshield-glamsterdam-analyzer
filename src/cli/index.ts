@@ -8,6 +8,8 @@ const analyzeGlamsterdamReadiness: any =
   _glamsterdamAnalyzer.analyzeGlamsterdamReadiness ??
   _glamsterdamAnalyzer.default ??
   _glamsterdamAnalyzer;
+const { fetchContractSource } = require("../blockchain/sourceFetcher");
+const { analyzeVerifiedSource } = require("../sourceIntelligence");
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
@@ -28,6 +30,7 @@ Usage:
 
 Environment:
   ETH_RPC_URL        Ethereum JSON-RPC endpoint
+  ETHERSCAN_API_KEY  Etherscan-compatible explorer API key (or network-specific keys)
   BASE_RPC_URL       Base JSON-RPC endpoint
   POLYGON_RPC_URL    Polygon JSON-RPC endpoint
   ARBITRUM_RPC_URL   Arbitrum JSON-RPC endpoint
@@ -65,9 +68,11 @@ Networks:
   }
 
   const report = analyzeGlamsterdamReadiness(result.bytecode);
+  const sourceResult = await fetchContractSource(options.address, { network: options.network });
+  const sourceReport = analyzeVerifiedSource(sourceResult.source);
   const output = options.outputJson
-    ? formatJsonReport(result, report)
-    : formatHumanReport(result, report);
+    ? formatJsonReport(result, report, undefined, sourceReport)
+    : formatHumanReport(result, report, sourceReport);
 
   console.log(output);
 }

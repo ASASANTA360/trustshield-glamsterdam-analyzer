@@ -50,6 +50,16 @@ test("formats machine-readable JSON output with required fields", () => {
     "metrics",
     "findings",
     "recommendations",
+    "sourceVerified",
+    "compilerVersion",
+    "optimizationEnabled",
+    "contractCount",
+    "sourceCodeSize",
+    "totalFunctions",
+    "sensitiveFunctions",
+    "sourceSecurityScore",
+    "sourceRiskLevel",
+    "sourceFindings",
     "timestamp",
   ]);
   assert.equal(parsed.address, contractResult.address);
@@ -60,6 +70,16 @@ test("formats machine-readable JSON output with required fields", () => {
   assert.deepEqual(parsed.metrics, glamsterdamReport.metrics);
   assert.deepEqual(parsed.findings, glamsterdamReport.findings);
   assert.deepEqual(parsed.recommendations, glamsterdamReport.recommendations);
+  assert.equal(parsed.sourceVerified, false);
+  assert.equal(parsed.compilerVersion, null);
+  assert.equal(parsed.optimizationEnabled, false);
+  assert.equal(parsed.contractCount, 0);
+  assert.equal(parsed.sourceCodeSize, 0);
+  assert.equal(parsed.totalFunctions, 0);
+  assert.deepEqual(parsed.sensitiveFunctions, []);
+  assert.equal(parsed.sourceSecurityScore, 0);
+  assert.equal(parsed.sourceRiskLevel, "HIGH");
+  assert.deepEqual(parsed.sourceFindings, []);
   assert.equal(parsed.timestamp, "2026-06-15T10:00:00.000Z");
 });
 
@@ -69,5 +89,6 @@ test("keeps default report human-readable", () => {
   assert.match(output, /TrustShield AI - Contract Report/);
   assert.match(output, /Network:\nbase/);
   assert.match(output, /Glamsterdam Readiness Score:/);
+  assert.match(output, /Source Code Intelligence/);
   assert.throws(() => JSON.parse(output));
 });
