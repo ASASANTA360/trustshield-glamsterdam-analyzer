@@ -1,7 +1,10 @@
-// Import using CommonJS require and fallbacks to handle modules that don't export
-// fetchContractCode as a named export.
+#!/usr/bin/env node
+
 const _contractFetcher: any = require("../blockchain/contractFetcher");
-const fetchContractCode: any = _contractFetcher.fetchContractCode ?? _contractFetcher.default ?? _contractFetcher;
+const fetchContractCode: any =
+  _contractFetcher.fetchContractCode ?? _contractFetcher.default ?? _contractFetcher;
+const _gasAnalyzer: any = require("../gas-analysis/gasAnalyzer");
+const analyzeGasImpact: any = _gasAnalyzer.default ?? _gasAnalyzer;
 
 const args = process.argv.slice(2);
 
@@ -15,30 +18,43 @@ function isValidEthereumAddress(addr?: string): boolean {
 async function main() {
   if (command !== "analyze") {
     console.log(`
-🛡️ TrustShield AI — Glamsterdam Analyzer
+TrustShield AI - Glamsterdam Analyzer
 
 Usage:
   trustshield analyze <contract-address>
+
+Environment:
+  ETH_RPC_URL       Ethereum JSON-RPC endpoint
+  RPC_TIMEOUT_MS   RPC timeout in milliseconds
 `);
     process.exit(1);
   }
 
   if (!isValidEthereumAddress(address)) {
-    console.error("❌ Invalid Ethereum address");
+    console.error("Invalid Ethereum address");
     process.exit(1);
   }
 
-  console.log("🔍 Connecting to Ethereum...");
-  
+  console.log("Connecting to Ethereum...");
+
   const result = await fetchContractCode(address);
 
   if (!result.exists) {
-    console.log("❌", result.message);
+    console.log(result.message);
+    if (result.error) {
+      console.error(`Details: ${result.error}`);
+    }
+    process.exitCode = 1;
     return;
   }
 
+  const gasImpact = analyzeGasImpact(result.bytecodeSize);
+  const warnings = gasImpact.warnings.length
+    ? gasImpact.warnings.map((warning: string) => `- ${warning}`).join("\n")
+    : "- No immediate gas-size warnings detected.";
+
   console.log(`
-🛡️ TrustShield AI — Contract Report
+TrustShield AI - Contract Report
 
 Address:
 ${result.address}
@@ -52,14 +68,23 @@ ${result.bytecodeSize} bytes
 Bytecode Preview:
 ${result.bytecodePreview}
 
-Glamsterdam Status:
-🟡 Analysis Engine In Development
+Gas Impact Score:
+${gasImpact.score}/100
+
+Risk Level:
+${gasImpact.riskLevel}
+
+Warnings:
+${warnings}
 
 Next Checks:
-- Gas repricing impact
 - EVM opcode compatibility
 - Contract optimization recommendations
+- AI-assisted explanation layer
 `);
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error(err instanceof Error ? err.message : String(err));
+  process.exitCode = 1;
+});
