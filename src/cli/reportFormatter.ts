@@ -5,12 +5,23 @@ type ContractResult = {
   bytecodePreview: string;
 };
 
+type TokenIntelligenceReport = {
+  tokenStandard: string;
+  tokenRiskScore: number;
+  tokenSecurityGrade: string;
+  tokenRiskLevel: string;
+  tokenCapabilities: string[];
+  tokenFindings: Array<Record<string, unknown>>;
+  rugPullIndicators: string[];
+};
+
 type GlamsterdamReport = {
   readinessScore: number;
   riskLevel: string;
   metrics: Record<string, number>;
   findings: Array<Record<string, unknown>>;
   recommendations: string[];
+  tokenIntelligence?: TokenIntelligenceReport;
 };
 
 type JsonReport = {
@@ -22,6 +33,13 @@ type JsonReport = {
   metrics: Record<string, number>;
   findings: Array<Record<string, unknown>>;
   recommendations: string[];
+  tokenStandard?: string;
+  tokenRiskScore?: number;
+  tokenSecurityGrade?: string;
+  tokenRiskLevel?: string;
+  tokenCapabilities?: string[];
+  tokenFindings?: Array<Record<string, unknown>>;
+  rugPullIndicators?: string[];
   timestamp: string;
 };
 
@@ -30,6 +48,8 @@ function createJsonReport(
   report: GlamsterdamReport,
   timestamp = new Date()
 ): JsonReport {
+  const tokenIntelligence = report.tokenIntelligence;
+
   return {
     address: result.address,
     network: result.network,
@@ -39,6 +59,17 @@ function createJsonReport(
     metrics: report.metrics,
     findings: report.findings,
     recommendations: report.recommendations,
+    ...(tokenIntelligence
+      ? {
+          tokenStandard: tokenIntelligence.tokenStandard,
+          tokenRiskScore: tokenIntelligence.tokenRiskScore,
+          tokenSecurityGrade: tokenIntelligence.tokenSecurityGrade,
+          tokenRiskLevel: tokenIntelligence.tokenRiskLevel,
+          tokenCapabilities: tokenIntelligence.tokenCapabilities,
+          tokenFindings: tokenIntelligence.tokenFindings,
+          rugPullIndicators: tokenIntelligence.rugPullIndicators,
+        }
+      : {}),
     timestamp: timestamp.toISOString(),
   };
 }
@@ -61,6 +92,41 @@ function formatHumanReport(result: ContractResult, report: GlamsterdamReport) {
   const recommendations = report.recommendations
     .map((recommendation: string) => `- ${recommendation}`)
     .join("\n");
+  const token = report.tokenIntelligence;
+  const tokenCapabilities = token?.tokenCapabilities.length
+    ? token.tokenCapabilities.map((capability) => `- ${capability}`).join("\n")
+    : "- None detected";
+  const tokenFindings = token?.tokenFindings.length
+    ? token.tokenFindings
+        .map(
+          (finding: any) =>
+            `- [${finding.severity}] ${finding.title}\n  Evidence: ${finding.evidence}\n  Recommendation: ${finding.recommendation}`
+        )
+        .join("\n")
+    : "- None detected";
+  const tokenSection = token
+    ? `
+Token Intelligence
+
+Standard:
+${token.tokenStandard}
+
+Token Risk Score:
+${token.tokenRiskScore}/100
+
+Security Grade:
+${token.tokenSecurityGrade}
+
+Risk Level:
+${token.tokenRiskLevel}
+
+Detected Controls:
+${tokenCapabilities}
+
+Risk Findings:
+${tokenFindings}
+`
+    : "";
 
   return `
 TrustShield AI - Contract Report
@@ -98,7 +164,7 @@ ${findings}
 
 Recommendations:
 ${recommendations}
-`;
+${tokenSection}`;
 }
 
 module.exports = {

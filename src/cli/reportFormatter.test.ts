@@ -9,6 +9,17 @@ const contractResult = {
   bytecodePreview: "0x600154...",
 };
 
+
+const tokenIntelligence = {
+  tokenStandard: "ERC-20",
+  tokenRiskScore: 95,
+  tokenSecurityGrade: "A",
+  tokenRiskLevel: "SAFE",
+  tokenCapabilities: ["Mintable", "Ownable", "Pausable"],
+  tokenFindings: [],
+  rugPullIndicators: [],
+};
+
 const glamsterdamReport = {
   readinessScore: 82,
   riskLevel: "LOW",
@@ -70,4 +81,23 @@ test("keeps default report human-readable", () => {
   assert.match(output, /Network:\nbase/);
   assert.match(output, /Glamsterdam Readiness Score:/);
   assert.throws(() => JSON.parse(output));
+});
+
+test("formats token intelligence in JSON and human reports", () => {
+  const report = { ...glamsterdamReport, tokenIntelligence };
+  const parsed = JSON.parse(formatJsonReport(contractResult, report, new Date("2026-06-15T10:00:00.000Z")));
+
+  assert.equal(parsed.tokenStandard, "ERC-20");
+  assert.equal(parsed.tokenRiskScore, 95);
+  assert.equal(parsed.tokenSecurityGrade, "A");
+  assert.equal(parsed.tokenRiskLevel, "SAFE");
+  assert.deepEqual(parsed.tokenCapabilities, ["Mintable", "Ownable", "Pausable"]);
+  assert.deepEqual(parsed.tokenFindings, []);
+  assert.deepEqual(parsed.rugPullIndicators, []);
+
+  const humanOutput = formatHumanReport(contractResult, report);
+  assert.match(humanOutput, /Token Intelligence/);
+  assert.match(humanOutput, /Standard:\nERC-20/);
+  assert.match(humanOutput, /Token Risk Score:\n95\/100/);
+  assert.match(humanOutput, /Risk Findings:\n- None detected/);
 });
