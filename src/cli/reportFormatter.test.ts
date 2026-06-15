@@ -31,6 +31,23 @@ const glamsterdamReport = {
     },
   ],
   recommendations: ["Profile state-heavy functions."],
+  vulnerabilities: [
+    {
+      id: "delegatecall-untrusted-contract",
+      name: "Delegatecall to Untrusted Contract",
+      swcId: "SWC-112",
+      cweId: "CWE-829",
+      severity: "HIGH",
+      description: "Delegatecall to an untrusted contract may allow arbitrary code execution.",
+      attackScenario: "An attacker controls the delegatecall target.",
+      remediation: "Restrict delegatecall targets and validate upgrade mechanisms.",
+      references: ["https://swcregistry.io/docs/SWC-112/"],
+    },
+  ],
+  vulnerabilityScore: 25,
+  vulnerabilityStatus: "REVIEW REQUIRED",
+  swcCoverage: ["SWC-112"],
+  cweMappings: { "CWE-829": ["SWC-112"] },
 };
 
 test("formats machine-readable JSON output with required fields", () => {
@@ -50,6 +67,11 @@ test("formats machine-readable JSON output with required fields", () => {
     "metrics",
     "findings",
     "recommendations",
+    "vulnerabilities",
+    "vulnerabilityScore",
+    "vulnerabilityStatus",
+    "swcCoverage",
+    "cweMappings",
     "timestamp",
   ]);
   assert.equal(parsed.address, contractResult.address);
@@ -60,6 +82,11 @@ test("formats machine-readable JSON output with required fields", () => {
   assert.deepEqual(parsed.metrics, glamsterdamReport.metrics);
   assert.deepEqual(parsed.findings, glamsterdamReport.findings);
   assert.deepEqual(parsed.recommendations, glamsterdamReport.recommendations);
+  assert.deepEqual(parsed.vulnerabilities, glamsterdamReport.vulnerabilities);
+  assert.equal(parsed.vulnerabilityScore, 25);
+  assert.equal(parsed.vulnerabilityStatus, "REVIEW REQUIRED");
+  assert.deepEqual(parsed.swcCoverage, ["SWC-112"]);
+  assert.deepEqual(parsed.cweMappings, { "CWE-829": ["SWC-112"] });
   assert.equal(parsed.timestamp, "2026-06-15T10:00:00.000Z");
 });
 
@@ -69,5 +96,7 @@ test("keeps default report human-readable", () => {
   assert.match(output, /TrustShield AI - Contract Report/);
   assert.match(output, /Network:\nbase/);
   assert.match(output, /Glamsterdam Readiness Score:/);
+  assert.match(output, /Vulnerability Intelligence:/);
+  assert.match(output, /SWC ID: SWC-112/);
   assert.throws(() => JSON.parse(output));
 });

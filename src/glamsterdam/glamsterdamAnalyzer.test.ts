@@ -42,3 +42,14 @@ test("flags deprecated opcode usage as high risk", () => {
   assert.equal(report.metrics.deprecatedOps, 1);
   assert.equal(finding?.severity, "HIGH");
 });
+
+
+test("maps detected EVM security signals to vulnerability intelligence", () => {
+  const report = analyzeGlamsterdamReadiness("0x6000f46000ff6000f1");
+
+  assert.deepEqual(report.swcCoverage, ["SWC-112", "SWC-106", "SWC-104"]);
+  assert.equal(report.cweMappings["CWE-829"][0], "SWC-112");
+  assert.equal(report.vulnerabilityScore, 62);
+  assert.equal(report.highVulnerabilityCount, 2);
+  assert.equal(report.vulnerabilityStatus, "HIGH RISK");
+});
