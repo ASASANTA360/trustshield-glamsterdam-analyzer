@@ -10,6 +10,9 @@ test("detects DELEGATECALL usage", () => {
   assert.equal(result.securityFindings[0].id, "delegatecall-usage");
   assert.equal(result.securityFindings[0].count, 1);
   assert.ok(result.securityRecommendations[0].includes("delegatecall"));
+  assert.equal(result.securityGrade, "C");
+  assert.match(result.aiSecuritySummary, /grade C/);
+  assert.ok(result.aiRecommendations.some((recommendation: string) => recommendation.includes("DELEGATECALL")));
 });
 
 test("detects SELFDESTRUCT opcode", () => {
@@ -49,6 +52,7 @@ test("ignores opcode bytes inside PUSH data", () => {
 
   assert.equal(result.securityScore, 100);
   assert.equal(result.securityRiskLevel, "LOW");
+  assert.equal(result.securityGrade, "A");
   assert.deepEqual(result.securityFindings, []);
 });
 
