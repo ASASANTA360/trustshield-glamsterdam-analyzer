@@ -1,5 +1,6 @@
 type ContractResult = {
   address: string;
+  network: string;
   bytecodeSize: number;
   bytecodePreview: string;
 };
@@ -14,6 +15,7 @@ type GlamsterdamReport = {
 
 type JsonReport = {
   address: string;
+  network: string;
   bytecodeSize: number;
   readinessScore: number;
   riskLevel: string;
@@ -30,6 +32,7 @@ function createJsonReport(
 ): JsonReport {
   return {
     address: result.address,
+    network: result.network,
     bytecodeSize: result.bytecodeSize,
     readinessScore: report.readinessScore,
     riskLevel: report.riskLevel,
@@ -64,6 +67,9 @@ TrustShield AI - Contract Report
 
 Address:
 ${result.address}
+
+Network:
+${result.network}
 
 Contract Found:
 YES

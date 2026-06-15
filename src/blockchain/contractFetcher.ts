@@ -1,10 +1,11 @@
 const { JsonRpcProvider } = require("ethers");
 
-const DEFAULT_RPC_URL = "https://ethereum.publicnode.com";
+const { getNetworkConfig } = require("./networks");
 const DEFAULT_TIMEOUT_MS = 10000;
 
 type FetchContractCodeOptions = {
   rpcUrl?: string;
+  network?: string;
   timeoutMs?: number;
   provider?: {
     getCode(address: string): Promise<string>;
@@ -12,8 +13,9 @@ type FetchContractCodeOptions = {
   };
 };
 
-function getRpcUrl() {
-  return process.env.ETH_RPC_URL || DEFAULT_RPC_URL;
+function getRpcUrl(network = "ethereum") {
+  const config = getNetworkConfig(network);
+  return process.env[config.envVar] || config.rpcUrl;
 }
 
 function getTimeoutMs() {
@@ -40,7 +42,8 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T
 }
 
 async function fetchContractCode(address: string, options: FetchContractCodeOptions = {}) {
-  const rpcUrl = options.rpcUrl ?? getRpcUrl();
+  const network = options.network ?? "ethereum";
+  const rpcUrl = options.rpcUrl ?? getRpcUrl(network);
   const timeoutMs = options.timeoutMs ?? getTimeoutMs();
   const provider = options.provider ?? new JsonRpcProvider(rpcUrl);
   const shouldDestroyProvider = !options.provider;
@@ -52,12 +55,14 @@ async function fetchContractCode(address: string, options: FetchContractCodeOpti
       return {
         exists: false,
         message: "No contract found at this address",
+        network,
       };
     }
 
     return {
       exists: true,
       address,
+      network,
       bytecode: code,
       bytecodeSize: (code.length - 2) / 2,
       bytecodePreview: code.slice(0, 100) + "...",
@@ -66,6 +71,7 @@ async function fetchContractCode(address: string, options: FetchContractCodeOpti
     return {
       exists: false,
       message: "Failed to fetch contract data",
+      network,
       error: err instanceof Error ? err.message : String(err),
     };
   } finally {

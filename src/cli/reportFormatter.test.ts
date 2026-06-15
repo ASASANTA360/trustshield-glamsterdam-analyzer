@@ -4,6 +4,7 @@ const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
 
 const contractResult = {
   address: "0x0000000000000000000000000000000000000000",
+  network: "base",
   bytecodeSize: 8,
   bytecodePreview: "0x600154...",
 };
@@ -42,6 +43,7 @@ test("formats machine-readable JSON output with required fields", () => {
 
   assert.deepEqual(Object.keys(parsed), [
     "address",
+    "network",
     "bytecodeSize",
     "readinessScore",
     "riskLevel",
@@ -51,6 +53,7 @@ test("formats machine-readable JSON output with required fields", () => {
     "timestamp",
   ]);
   assert.equal(parsed.address, contractResult.address);
+  assert.equal(parsed.network, "base");
   assert.equal(parsed.bytecodeSize, 8);
   assert.equal(parsed.readinessScore, 82);
   assert.equal(parsed.riskLevel, "LOW");
@@ -64,6 +67,7 @@ test("keeps default report human-readable", () => {
   const output = formatHumanReport(contractResult, glamsterdamReport);
 
   assert.match(output, /TrustShield AI - Contract Report/);
+  assert.match(output, /Network:\nbase/);
   assert.match(output, /Glamsterdam Readiness Score:/);
   assert.throws(() => JSON.parse(output));
 });
