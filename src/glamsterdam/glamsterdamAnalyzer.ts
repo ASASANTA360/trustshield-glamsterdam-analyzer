@@ -1,6 +1,7 @@
 const analyzeGasImpact = require("../gas-analysis/gasAnalyzer");
+const { mapOpcodesToVulnerabilities, scoreVulnerabilities } = require("../security/vulnerabilityKnowledgeBase");
 
-type Severity = "INFO" | "LOW" | "MEDIUM" | "HIGH";
+type Severity = "INFO" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 type FindingCategory =
   | "contract-size"
@@ -30,6 +31,13 @@ type GlamsterdamReport = {
   readinessScore: number;
   riskLevel: RiskLevel;
   bytecodeSize: number;
+  vulnerabilities: Array<Record<string, unknown>>;
+  vulnerabilityScore: number;
+  criticalVulnerabilityCount: number;
+  highVulnerabilityCount: number;
+  vulnerabilityStatus: "SAFE" | "REVIEW REQUIRED" | "HIGH RISK" | "CRITICAL";
+  swcCoverage: string[];
+  cweMappings: Record<string, string[]>;
   metrics: {
     stateAccessOps: number;
     externalInteractionOps: number;
@@ -304,6 +312,9 @@ function analyzeGlamsterdamReadiness(bytecode: string): GlamsterdamReport {
     });
   }
 
+  const vulnerabilities = mapOpcodesToVulnerabilities(counts);
+  const vulnerabilityRisk = scoreVulnerabilities(vulnerabilities);
+
   const rawScore = findings.reduce(
     (score, finding) => score - getScorePenalty(finding.severity),
     100
@@ -322,6 +333,13 @@ function analyzeGlamsterdamReadiness(bytecode: string): GlamsterdamReport {
       deprecatedOps,
     },
     opcodeSummary,
+    vulnerabilities,
+    vulnerabilityScore: vulnerabilityRisk.vulnerabilityScore,
+    criticalVulnerabilityCount: vulnerabilityRisk.criticalVulnerabilityCount,
+    highVulnerabilityCount: vulnerabilityRisk.highVulnerabilityCount,
+    vulnerabilityStatus: vulnerabilityRisk.vulnerabilityStatus,
+    swcCoverage: vulnerabilityRisk.swcCoverage,
+    cweMappings: vulnerabilityRisk.cweMappings,
     findings,
     recommendations: uniqueRecommendations(findings),
   };
