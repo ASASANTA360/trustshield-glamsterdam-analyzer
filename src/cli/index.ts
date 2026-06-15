@@ -9,6 +9,7 @@ const analyzeGlamsterdamReadiness: any =
   _glamsterdamAnalyzer.default ??
   _glamsterdamAnalyzer;
 const { parseCliOptions } = require("./cliOptions");
+const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
 
 const options = parseCliOptions(process.argv.slice(2));
@@ -23,12 +24,23 @@ async function main() {
 TrustShield AI - Glamsterdam Analyzer
 
 Usage:
-  trustshield analyze <contract-address> [--json]
+  trustshield analyze <contract-address> [--network <network>] [--json]
 
 Environment:
-  ETH_RPC_URL       Ethereum JSON-RPC endpoint
-  RPC_TIMEOUT_MS   RPC timeout in milliseconds
+  ETH_RPC_URL        Ethereum JSON-RPC endpoint
+  BASE_RPC_URL       Base JSON-RPC endpoint
+  POLYGON_RPC_URL    Polygon JSON-RPC endpoint
+  ARBITRUM_RPC_URL   Arbitrum JSON-RPC endpoint
+  RPC_TIMEOUT_MS     RPC timeout in milliseconds
+
+Networks:
+  ${getSupportedNetworks().join(", ")} (default: ethereum)
 `);
+    process.exit(1);
+  }
+
+  if (options.networkError) {
+    console.error(options.networkError);
     process.exit(1);
   }
 
@@ -38,10 +50,10 @@ Environment:
   }
 
   if (!options.outputJson) {
-    console.log("Connecting to Ethereum...");
+    console.log(`Connecting to ${options.network}...`);
   }
 
-  const result = await fetchContractCode(options.address);
+  const result = await fetchContractCode(options.address, { network: options.network });
 
   if (!result.exists) {
     console.log(result.message);
