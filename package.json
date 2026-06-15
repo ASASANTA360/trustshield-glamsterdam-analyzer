@@ -1,21 +1,33 @@
 {
   "name": "trustshield-glamsterdam-analyzer",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Ethereum smart contract readiness analyzer for the Glamsterdam upgrade.",
+  "main": "dist/cli/index.js",
+  "bin": {
+    "trustshield": "dist/cli/index.js"
+  },
   "directories": {
     "doc": "docs",
     "example": "examples"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "start": "tsx src/cli/index.ts",
+    "test": "npm run check && tsx --test src/gas-analysis/gasAnalyzer.test.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ASASANTA360/trustshield-glamsterdam-analyzer.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "ethereum",
+    "smart-contracts",
+    "glamsterdam",
+    "evm",
+    "gas-analysis"
+  ],
+  "author": "ASASANTA360",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
