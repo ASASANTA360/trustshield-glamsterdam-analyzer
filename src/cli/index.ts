@@ -10,6 +10,7 @@ const analyzeGlamsterdamReadiness: any =
   _glamsterdamAnalyzer;
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
+const { fetchBlockchainIntelligence } = require("../blockchain/intelligence");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
 
 const options = parseCliOptions(process.argv.slice(2));
@@ -32,6 +33,11 @@ Environment:
   POLYGON_RPC_URL    Polygon JSON-RPC endpoint
   ARBITRUM_RPC_URL   Arbitrum JSON-RPC endpoint
   RPC_TIMEOUT_MS     RPC timeout in milliseconds
+  ETHERSCAN_API_KEY  Ethereum explorer API key
+  BASESCAN_API_KEY   Base explorer API key
+  POLYGONSCAN_API_KEY Polygon explorer API key
+  ARBISCAN_API_KEY   Arbitrum explorer API key
+  EXPLORER_TIMEOUT_MS Explorer timeout in milliseconds
 
 Networks:
   ${getSupportedNetworks().join(", ")} (default: ethereum)
@@ -64,10 +70,11 @@ Networks:
     return;
   }
 
+  const blockchainIntelligence = await fetchBlockchainIntelligence(options.address, { network: options.network });
   const report = analyzeGlamsterdamReadiness(result.bytecode);
   const output = options.outputJson
-    ? formatJsonReport(result, report)
-    : formatHumanReport(result, report);
+    ? formatJsonReport(result, report, new Date(), blockchainIntelligence)
+    : formatHumanReport(result, report, blockchainIntelligence);
 
   console.log(output);
 }
