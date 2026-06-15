@@ -36,6 +36,25 @@ npm test
 npm run build
 ```
 
+## GitHub Actions CI
+
+This repository includes a reusable GitHub Actions workflow that installs the
+analyzer, runs tests, builds the CLI, analyzes a sample Ethereum contract with
+`--json`, and uploads the JSON report as an artifact.
+
+```yaml
+jobs:
+  trustshield:
+    uses: ASASANTA360/trustshield-glamsterdam-analyzer/.github/workflows/glamsterdam-analyzer.yml@main
+    with:
+      contract_address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    secrets:
+      eth_rpc_url: ${{ secrets.ETH_RPC_URL }}
+```
+
+See [docs/ci-integration.md](docs/ci-integration.md) for setup guidance in
+other smart contract repositories.
+
 ## Current Capabilities
 
 - Fetches deployed bytecode for an Ethereum contract address.

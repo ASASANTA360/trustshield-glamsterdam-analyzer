@@ -1,0 +1,140 @@
+name: TrustShield Glamsterdam Analyzer
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      contract_address:
+        description: Ethereum contract address to analyze
+        required: false
+        default: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      rpc_url:
+        description: Ethereum JSON-RPC endpoint
+        required: false
+        default: "https://ethereum.publicnode.com"
+      rpc_timeout_ms:
+        description: RPC timeout in milliseconds
+        required: false
+        default: "10000"
+      analyzer_ref:
+        description: Analyzer repository ref to run
+        required: false
+        default: ""
+  workflow_call:
+    inputs:
+      contract_address:
+        description: Ethereum contract address to analyze
+        required: false
+        type: string
+        default: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+      rpc_url:
+        description: Ethereum JSON-RPC endpoint
+        required: false
+        type: string
+        default: "https://ethereum.publicnode.com"
+      rpc_timeout_ms:
+        description: RPC timeout in milliseconds
+        required: false
+        type: string
+        default: "10000"
+      analyzer_ref:
+        description: Analyzer repository ref to run
+        required: false
+        type: string
+        default: ""
+    secrets:
+      eth_rpc_url:
+        description: Optional Ethereum JSON-RPC endpoint secret
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze contract readiness
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve analyzer configuration
+        id: config
+        shell: bash
+        env:
+          DEFAULT_CONTRACT_ADDRESS: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+          DEFAULT_RPC_URL: "https://ethereum.publicnode.com"
+          INPUT_CONTRACT_ADDRESS: ${{ inputs.contract_address }}
+          INPUT_RPC_URL: ${{ inputs.rpc_url }}
+          INPUT_RPC_TIMEOUT_MS: ${{ inputs.rpc_timeout_ms }}
+          INPUT_ANALYZER_REF: ${{ inputs.analyzer_ref }}
+          SECRET_RPC_URL: ${{ secrets.eth_rpc_url || secrets.ETH_RPC_URL }}
+        run: |
+          contract_address="${INPUT_CONTRACT_ADDRESS:-$DEFAULT_CONTRACT_ADDRESS}"
+          rpc_url="${SECRET_RPC_URL:-${INPUT_RPC_URL:-$DEFAULT_RPC_URL}}"
+          rpc_timeout_ms="${INPUT_RPC_TIMEOUT_MS:-10000}"
+          analyzer_ref="${INPUT_ANALYZER_REF:-}"
+
+          if [ -z "$analyzer_ref" ]; then
+            if [ "$GITHUB_REPOSITORY" = "ASASANTA360/trustshield-glamsterdam-analyzer" ]; then
+              if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+                analyzer_ref="$GITHUB_HEAD_REF"
+              else
+                analyzer_ref="$GITHUB_REF_NAME"
+              fi
+            else
+              analyzer_ref="main"
+            fi
+          fi
+
+          {
+            echo "contract_address=$contract_address"
+            echo "rpc_url=$rpc_url"
+            echo "rpc_timeout_ms=$rpc_timeout_ms"
+            echo "analyzer_ref=$analyzer_ref"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout TrustShield analyzer
+        uses: actions/checkout@v4
+        with:
+          repository: ASASANTA360/trustshield-glamsterdam-analyzer
+          ref: ${{ steps.config.outputs.analyzer_ref }}
+          path: analyzer
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: analyzer/package-lock.json
+
+      - name: Install dependencies
+        working-directory: analyzer
+        run: npm install
+
+      - name: Run tests
+        working-directory: analyzer
+        run: npm test
+
+      - name: Build analyzer
+        working-directory: analyzer
+        run: npm run build
+
+      - name: Run Glamsterdam analyzer
+        working-directory: analyzer
+        env:
+          ETH_RPC_URL: ${{ steps.config.outputs.rpc_url }}
+          RPC_TIMEOUT_MS: ${{ steps.config.outputs.rpc_timeout_ms }}
+          CONTRACT_ADDRESS: ${{ steps.config.outputs.contract_address }}
+        run: |
+          mkdir -p reports
+          npm start -- analyze "$CONTRACT_ADDRESS" --json > reports/glamsterdam-report.json
+          node -e "const fs = require('fs'); const report = JSON.parse(fs.readFileSync('reports/glamsterdam-report.json', 'utf8')); for (const key of ['address','bytecodeSize','readinessScore','riskLevel','metrics','findings','recommendations','timestamp']) { if (!(key in report)) throw new Error('Missing JSON report key: ' + key); }"
+
+      - name: Upload Glamsterdam JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: glamsterdam-analyzer-report
+          path: analyzer/reports/glamsterdam-report.json
+          if-no-files-found: error
