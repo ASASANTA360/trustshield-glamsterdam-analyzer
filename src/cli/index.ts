@@ -11,6 +11,7 @@ const analyzeGlamsterdamReadiness: any =
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
+const { analyzeTokenIntelligence } = require("../token-intelligence/tokenIntelligence");
 
 const options = parseCliOptions(process.argv.slice(2));
 
@@ -65,6 +66,7 @@ Networks:
   }
 
   const report = analyzeGlamsterdamReadiness(result.bytecode);
+  report.tokenIntelligence = analyzeTokenIntelligence({ bytecode: result.bytecode });
   const output = options.outputJson
     ? formatJsonReport(result, report)
     : formatHumanReport(result, report);
