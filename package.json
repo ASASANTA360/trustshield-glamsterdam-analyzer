@@ -8,7 +8,8 @@
     "example": "examples"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --import tsx --test test/**/*.test.ts",
+    "build": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
