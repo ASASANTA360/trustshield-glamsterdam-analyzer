@@ -54,6 +54,32 @@ test("parses --network before the contract address", () => {
   );
 });
 
+test("parses markdown audit report output", () => {
+  assert.deepEqual(
+    parseCliOptions(["analyze", "0x0000000000000000000000000000000000000000", "--report", "markdown"]),
+    {
+      command: "analyze",
+      address: "0x0000000000000000000000000000000000000000",
+      outputJson: false,
+      reportFormat: "markdown",
+      network: "ethereum",
+    }
+  );
+});
+
+test("reports unsupported audit report formats", () => {
+  assert.deepEqual(
+    parseCliOptions(["analyze", "0x0000000000000000000000000000000000000000", "--report", "pdf"]),
+    {
+      command: "analyze",
+      address: "0x0000000000000000000000000000000000000000",
+      outputJson: false,
+      network: "ethereum",
+      networkError: "Unsupported report format: pdf",
+    }
+  );
+});
+
 test("reports unsupported networks", () => {
   assert.deepEqual(
     parseCliOptions(["analyze", "0x0000000000000000000000000000000000000000", "--network", "optimism"]),

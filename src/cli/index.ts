@@ -11,6 +11,7 @@ const analyzeGlamsterdamReadiness: any =
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
+const { createAuditReport, saveAuditReport } = require("../audit/auditReportGenerator");
 
 const options = parseCliOptions(process.argv.slice(2));
 
@@ -25,6 +26,7 @@ TrustShield AI - Glamsterdam Analyzer
 
 Usage:
   trustshield analyze <contract-address> [--network <network>] [--json]
+  trustshield analyze <contract-address> [--network <network>] [--report markdown|html|json]
 
 Environment:
   ETH_RPC_URL        Ethereum JSON-RPC endpoint
@@ -65,6 +67,13 @@ Networks:
   }
 
   const report = analyzeGlamsterdamReadiness(result.bytecode);
+  if (options.reportFormat) {
+    const auditReport = createAuditReport(result, report);
+    const reportPath = saveAuditReport(auditReport, options.reportFormat);
+    console.log(`Audit report saved to ${reportPath}`);
+    return;
+  }
+
   const output = options.outputJson
     ? formatJsonReport(result, report)
     : formatHumanReport(result, report);
