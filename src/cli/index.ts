@@ -8,23 +8,22 @@ const analyzeGlamsterdamReadiness: any =
   _glamsterdamAnalyzer.analyzeGlamsterdamReadiness ??
   _glamsterdamAnalyzer.default ??
   _glamsterdamAnalyzer;
+const { parseCliOptions } = require("./cliOptions");
+const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
 
-const args = process.argv.slice(2);
-
-const command = args[0];
-const address = args[1];
+const options = parseCliOptions(process.argv.slice(2));
 
 function isValidEthereumAddress(addr?: string): boolean {
   return typeof addr === "string" && /^0x[a-fA-F0-9]{40}$/.test(addr);
 }
 
 async function main() {
-  if (command !== "analyze") {
+  if (options.command !== "analyze") {
     console.log(`
 TrustShield AI - Glamsterdam Analyzer
 
 Usage:
-  trustshield analyze <contract-address>
+  trustshield analyze <contract-address> [--json]
 
 Environment:
   ETH_RPC_URL       Ethereum JSON-RPC endpoint
@@ -33,14 +32,16 @@ Environment:
     process.exit(1);
   }
 
-  if (!isValidEthereumAddress(address)) {
+  if (!isValidEthereumAddress(options.address)) {
     console.error("Invalid Ethereum address");
     process.exit(1);
   }
 
-  console.log("Connecting to Ethereum...");
+  if (!options.outputJson) {
+    console.log("Connecting to Ethereum...");
+  }
 
-  const result = await fetchContractCode(address);
+  const result = await fetchContractCode(options.address);
 
   if (!result.exists) {
     console.log(result.message);
@@ -52,50 +53,11 @@ Environment:
   }
 
   const report = analyzeGlamsterdamReadiness(result.bytecode);
-  const findings = report.findings
-    .map(
-      (finding: any) =>
-        `- [${finding.severity}] ${finding.title}\n  Evidence: ${finding.evidence}\n  Recommendation: ${finding.recommendation}`
-    )
-    .join("\n");
-  const recommendations = report.recommendations
-    .map((recommendation: string) => `- ${recommendation}`)
-    .join("\n");
+  const output = options.outputJson
+    ? formatJsonReport(result, report)
+    : formatHumanReport(result, report);
 
-  console.log(`
-TrustShield AI - Contract Report
-
-Address:
-${result.address}
-
-Contract Found:
-YES
-
-Bytecode Size:
-${result.bytecodeSize} bytes
-
-Bytecode Preview:
-${result.bytecodePreview}
-
-Glamsterdam Readiness Score:
-${report.readinessScore}/100
-
-Risk Level:
-${report.riskLevel}
-
-Metrics:
-- State/account access ops: ${report.metrics.stateAccessOps}
-- External interaction ops: ${report.metrics.externalInteractionOps}
-- Log ops: ${report.metrics.logOps}
-- Block context ops: ${report.metrics.blockContextOps}
-- Deprecated ops: ${report.metrics.deprecatedOps}
-
-Findings:
-${findings}
-
-Recommendations:
-${recommendations}
-`);
+  console.log(output);
 }
 
 main().catch((err) => {

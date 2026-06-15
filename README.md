@@ -16,6 +16,12 @@ npm install
 npm start -- analyze <contract-address>
 ```
 
+For machine-readable output:
+
+```bash
+npm start -- analyze <contract-address> --json
+```
+
 You can also configure the RPC endpoint and timeout:
 
 ```bash

@@ -14,7 +14,7 @@
     "build": "tsc",
     "check": "tsc --noEmit",
     "start": "tsx src/cli/index.ts",
-    "test": "npm run check && tsx --test src/gas-analysis/gasAnalyzer.test.ts src/glamsterdam/glamsterdamAnalyzer.test.ts"
+    "test": "npm run check && tsx --test src/gas-analysis/gasAnalyzer.test.ts src/glamsterdam/glamsterdamAnalyzer.test.ts src/cli/cliOptions.test.ts src/cli/reportFormatter.test.ts"
   },
   "repository": {
     "type": "git",
