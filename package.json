@@ -14,7 +14,10 @@
     "build": "tsc",
     "check": "tsc --noEmit",
     "start": "tsx src/cli/index.ts",
-    "test": "npm run check && tsx --test src/gas-analysis/gasAnalyzer.test.ts src/glamsterdam/glamsterdamAnalyzer.test.ts src/cli/cliOptions.test.ts src/cli/reportFormatter.test.ts"
+    "test": "npm run check && tsx --test src/gas-analysis/gasAnalyzer.test.ts src/glamsterdam/glamsterdamAnalyzer.test.ts src/cli/cliOptions.test.ts src/cli/reportFormatter.test.ts src/platform/scanService.test.ts",
+    "dev": "next dev",
+    "web": "next dev",
+    "next:build": "next build"
   },
   "repository": {
     "type": "git",
@@ -37,10 +40,16 @@
   "devDependencies": {
     "@types/node": "^25.9.3",
     "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0"
   },
   "dependencies": {
-    "ethers": "^6.16.0"
+    "ethers": "^6.16.0",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "mongodb": "^6.0.0"
   },
   "overrides": {
     "ws": "^8.20.1"
