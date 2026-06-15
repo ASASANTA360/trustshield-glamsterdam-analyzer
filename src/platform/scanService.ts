@@ -1,12 +1,7 @@
 import type { ScanRequest, StoredScan } from "./types.js";
 
 import { fetchContractCode } from "../blockchain/contractFetcher.js";
-// suppress import error when the analyzer isn't exported as named symbol
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { analyzeGlamsterdamReadiness } from "../glamsterdam/glamsterdamAnalyzer.js";
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { buildScanReport } from "./reportBuilder.js";
 
 async function runSecurityScan(request: ScanRequest): Promise<StoredScan> {
@@ -27,7 +22,9 @@ async function runSecurityScan(request: ScanRequest): Promise<StoredScan> {
     bytecodeSize: number;
   };
 
-  const glamsterdamReport = analyzeGlamsterdamReadiness(successfulFetchResult.bytecode);
+  const glamsterdamReport = analyzeGlamsterdamReadiness(
+    successfulFetchResult.bytecode
+  );
 
   const report = buildScanReport({
     contractAddress: request.contractAddress,
@@ -36,12 +33,10 @@ async function runSecurityScan(request: ScanRequest): Promise<StoredScan> {
     glamsterdamReport,
   });
 
-  const storedScan: StoredScan = {
+  return {
     ...report,
     riskScore: 100 - report.trustScore,
   };
-
-  return storedScan;
 }
 
 export { runSecurityScan };
