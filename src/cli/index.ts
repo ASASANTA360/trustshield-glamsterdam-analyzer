@@ -1,51 +1,65 @@
-#!/usr/bin/env node
-
-declare const process: {
-  argv: string[];
-  exit(code?: number): never;
-};
+// Import using CommonJS require and fallbacks to handle modules that don't export
+// fetchContractCode as a named export.
+const _contractFetcher: any = require("../blockchain/contractFetcher");
+const fetchContractCode: any = _contractFetcher.fetchContractCode ?? _contractFetcher.default ?? _contractFetcher;
 
 const args = process.argv.slice(2);
 
 const command = args[0];
 const address = args[1];
 
-function isValidEthereumAddress(addr: string | undefined): boolean {
+function isValidEthereumAddress(addr?: string): boolean {
   return typeof addr === "string" && /^0x[a-fA-F0-9]{40}$/.test(addr);
 }
 
-if (command !== "analyze") {
-  console.log(`
+async function main() {
+  if (command !== "analyze") {
+    console.log(`
 🛡️ TrustShield AI — Glamsterdam Analyzer
 
 Usage:
   trustshield analyze <contract-address>
 `);
-  process.exit(1);
-}
+    process.exit(1);
+  }
 
-if (!isValidEthereumAddress(address)) {
-  console.error("❌ Invalid Ethereum contract address");
-  process.exit(1);
-}
+  if (!isValidEthereumAddress(address)) {
+    console.error("❌ Invalid Ethereum address");
+    process.exit(1);
+  }
 
-console.log("🔍 Analyzing contract:", address);
+  console.log("🔍 Connecting to Ethereum...");
+  
+  const result = await fetchContractCode(address);
 
-console.log(`
-📊 Glamsterdam Compatibility Report
+  if (!result.exists) {
+    console.log("❌", result.message);
+    return;
+  }
 
-Contract: ${address}
+  console.log(`
+🛡️ TrustShield AI — Contract Report
 
-Compatibility Score: 85/100
+Address:
+${result.address}
 
-Risk Level: LOW
+Contract Found:
+YES
 
-Findings:
-✓ Address format valid
-✓ Initial analysis completed
+Bytecode Size:
+${result.bytecodeSize} bytes
 
-Recommendations:
-- Check gas usage after Glamsterdam repricing
-- Review affected EVM operations
-- Run deeper compatibility tests
+Bytecode Preview:
+${result.bytecodePreview}
+
+Glamsterdam Status:
+🟡 Analysis Engine In Development
+
+Next Checks:
+- Gas repricing impact
+- EVM opcode compatibility
+- Contract optimization recommendations
 `);
+}
+
+main().catch(console.error);
