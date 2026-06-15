@@ -1,4 +1,4 @@
-const analyzeGasImpact = require("../gas-analysis/gasAnalyzer");
+import analyzeGasImpact from "../gas-analysis/gasAnalyzer.js";
 
 type Severity = "INFO" | "LOW" | "MEDIUM" | "HIGH";
 type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
@@ -327,7 +327,4 @@ function analyzeGlamsterdamReadiness(bytecode: string): GlamsterdamReport {
   };
 }
 
-module.exports = {
-  analyzeGlamsterdamReadiness,
-  parseOpcodes,
-};
+export { analyzeGlamsterdamReadiness, parseOpcodes };

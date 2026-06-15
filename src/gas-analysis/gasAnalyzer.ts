@@ -24,4 +24,5 @@ function analyzeGasImpact(bytecodeSize: number) {
   };
 }
 
-export = analyzeGasImpact;
+export default analyzeGasImpact;
+export { analyzeGasImpact };

@@ -1,11 +1,17 @@
-const { JsonRpcProvider } = require("ethers");
+import { JsonRpcProvider } from "ethers";
+import { getNetworkConfig } from "./networks.js";
 
-const { getNetworkConfig } = require("./networks");
+declare const process: {
+  env: { [key: string]: string | undefined };
+};
+
 const DEFAULT_TIMEOUT_MS = 10000;
+
+type Network = "ethereum" | "base" | "polygon" | "arbitrum";
 
 type FetchContractCodeOptions = {
   rpcUrl?: string;
-  network?: string;
+  network?: Network;
   timeoutMs?: number;
   provider?: {
     getCode(address: string): Promise<string>;
@@ -13,7 +19,7 @@ type FetchContractCodeOptions = {
   };
 };
 
-function getRpcUrl(network = "ethereum") {
+function getRpcUrl(network: Network = "ethereum") {
   const config = getNetworkConfig(network);
   return process.env[config.envVar] || config.rpcUrl;
 }
@@ -81,4 +87,4 @@ async function fetchContractCode(address: string, options: FetchContractCodeOpti
   }
 }
 
-module.exports = { fetchContractCode };
+export { fetchContractCode };

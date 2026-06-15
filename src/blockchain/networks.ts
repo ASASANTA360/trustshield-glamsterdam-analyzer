@@ -1,15 +1,15 @@
 const SUPPORTED_NETWORKS = ["ethereum", "base", "polygon", "arbitrum"] as const;
 
-type SupportedNetwork = (typeof SUPPORTED_NETWORKS)[number];
+export type SupportedNetwork = (typeof SUPPORTED_NETWORKS)[number];
 
-type NetworkConfig = {
+export type NetworkConfig = {
   name: SupportedNetwork;
   displayName: string;
   rpcUrl: string;
   envVar: string;
 };
 
-const NETWORK_CONFIGS: Record<SupportedNetwork, NetworkConfig> = {
+export const NETWORK_CONFIGS: Record<SupportedNetwork, NetworkConfig> = {
   ethereum: {
     name: "ethereum",
     displayName: "Ethereum",
@@ -36,22 +36,14 @@ const NETWORK_CONFIGS: Record<SupportedNetwork, NetworkConfig> = {
   },
 };
 
-function isSupportedNetwork(network: string): network is SupportedNetwork {
+export function isSupportedNetwork(network: string): network is SupportedNetwork {
   return (SUPPORTED_NETWORKS as readonly string[]).includes(network);
 }
 
-function getNetworkConfig(network: SupportedNetwork): NetworkConfig {
+export function getNetworkConfig(network: SupportedNetwork): NetworkConfig {
   return NETWORK_CONFIGS[network];
 }
 
-function getSupportedNetworks(): readonly SupportedNetwork[] {
+export function getSupportedNetworks(): readonly SupportedNetwork[] {
   return SUPPORTED_NETWORKS;
 }
-
-module.exports = {
-  NETWORK_CONFIGS,
-  SUPPORTED_NETWORKS,
-  getNetworkConfig,
-  getSupportedNetworks,
-  isSupportedNetwork,
-};

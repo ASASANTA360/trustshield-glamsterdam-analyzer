@@ -4,7 +4,7 @@ function isValidContractAddress(address: string): boolean {
   return /^0x[a-fA-F0-9]{40}$/.test(address);
 }
 
-function validateScanInput(input: unknown) {
+export function validateScanInput(input: unknown) {
   const candidate = input as { contractAddress?: unknown; network?: unknown };
   const contractAddress = typeof candidate.contractAddress === "string" ? candidate.contractAddress.trim() : "";
   const network = typeof candidate.network === "string" ? candidate.network.trim().toLowerCase() : "";

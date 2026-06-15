@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 const { runSecurityScan } = require("../../../platform/scanService");
 const { validateScanInput } = require("../../../platform/validation");
 
@@ -9,9 +7,15 @@ export async function POST(request: Request) {
   const validation = validateScanInput(body);
 
   if (!validation.ok) {
-    return NextResponse.json({ error: validation.error }, { status: 400 });
+    return new Response(JSON.stringify({ error: validation.error }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
   }
 
   const report = await runSecurityScan(validation.value);
-  return NextResponse.json(report, { status: 201 });
+  return new Response(JSON.stringify(report), {
+    status: 201,
+    headers: { "content-type": "application/json" },
+  });
 }

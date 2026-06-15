@@ -32,7 +32,7 @@
   ],
   "author": "ASASANTA360",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/ASASANTA360/trustshield-glamsterdam-analyzer/issues"
   },

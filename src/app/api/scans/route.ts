@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
-
 const { listScans } = require("../../../platform/storage");
 
 export async function GET() {
-  return NextResponse.json({ scans: await listScans() });
+  const scans = await listScans();
+  return new Response(JSON.stringify({ scans }), {
+    headers: { "Content-Type": "application/json" },
+  });
 }

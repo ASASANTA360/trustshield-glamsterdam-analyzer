@@ -1,6 +1,7 @@
-const { promises: fs } = require("node:fs");
-const path = require("node:path");
-import type { AnalyticsReport, RiskLevel, StoredScan } from "./types";
+
+import { promises as fs } from "node:fs";
+import path from "node:path";
+import type { AnalyticsReport, RiskLevel, StoredScan } from "./types.js";
 
 // JSON persistence is the local development fallback; configure MONGODB_URI for production deployments.
 const DATA_DIR = path.join(process.cwd(), ".trustshield");
@@ -41,7 +42,7 @@ async function listScans(limit = 25): Promise<StoredScan[]> {
   return scans.slice(0, limit);
 }
 
-async function getScan(id: string): Promise<StoredScan | undefined> {
+export async function getScan(id: string): Promise<StoredScan | undefined> {
   const scans = await readJsonStore();
   return scans.find((scan) => scan.id === id);
 }

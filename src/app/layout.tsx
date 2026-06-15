@@ -1,5 +1,4 @@
-import "./styles.css";
-
+import "./globals.css";
 export const metadata = {
   title: "TrustShield AI Web3 Security Platform",
   description: "Smart contract security scans, Glamsterdam readiness, and persistent Web3 risk intelligence.",

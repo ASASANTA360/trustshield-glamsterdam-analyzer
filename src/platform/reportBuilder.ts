@@ -1,5 +1,4 @@
-import type { ScanReport, SecurityFinding, SecurityGrade, SupportedNetwork } from "./types";
-
+import type { ScanReport, SecurityFinding, SecurityGrade, SupportedNetwork } from "./types.js";
 function getSecurityGrade(score: number): SecurityGrade {
   if (score >= 90) return "A";
   if (score >= 80) return "B";
@@ -55,4 +54,4 @@ function buildScanReport(params: {
   };
 }
 
-module.exports = { buildScanReport, getSecurityGrade };
+export { buildScanReport, getSecurityGrade };
