@@ -11,6 +11,7 @@ const analyzeGlamsterdamReadiness: any =
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
+const { analyzeHistoricalRiskIntelligence } = require("../intelligence/historicalRiskIntelligence");
 
 const options = parseCliOptions(process.argv.slice(2));
 
@@ -65,9 +66,10 @@ Networks:
   }
 
   const report = analyzeGlamsterdamReadiness(result.bytecode);
+  const intelligence = analyzeHistoricalRiskIntelligence(report);
   const output = options.outputJson
-    ? formatJsonReport(result, report)
-    : formatHumanReport(result, report);
+    ? formatJsonReport(result, report, intelligence)
+    : formatHumanReport(result, report, intelligence);
 
   console.log(output);
 }
