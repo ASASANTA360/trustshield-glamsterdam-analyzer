@@ -1,3 +1,5 @@
+const generateAiSecurityIntelligence = require("./aiSecurityIntelligence");
+
 type SecurityRiskLevel = "LOW" | "MEDIUM" | "HIGH";
 
 type FindingSeverity = "LOW" | "MEDIUM" | "HIGH";
@@ -17,6 +19,9 @@ interface SecurityAnalysisResult {
   securityRiskLevel: SecurityRiskLevel;
   securityFindings: SecurityFinding[];
   securityRecommendations: string[];
+  securityGrade: "A" | "B" | "C" | "D" | "F";
+  aiSecuritySummary: string;
+  aiRecommendations: string[];
 }
 
 interface SecurityRule {
@@ -159,11 +164,17 @@ function analyzeSecurity(bytecode?: string): SecurityAnalysisResult {
     ? findings.map((finding) => finding.recommendation)
     : ["No high-risk low-level EVM patterns were detected in the deployed bytecode. Continue using audited dependencies and defense-in-depth reviews."];
 
-  return {
+  const baseAnalysis = {
     securityScore,
     securityRiskLevel: getRiskLevel(securityScore),
     securityFindings: findings,
     securityRecommendations,
+  };
+  const aiSecurityIntelligence = generateAiSecurityIntelligence(baseAnalysis);
+
+  return {
+    ...baseAnalysis,
+    ...aiSecurityIntelligence,
   };
 }
 

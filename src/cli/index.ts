@@ -28,6 +28,10 @@ function formatSecurityRecommendations(recommendations: string[]): string {
   return recommendations.map((recommendation) => `- ${recommendation}`).join("\n");
 }
 
+function formatAiRecommendations(recommendations: string[]): string {
+  return recommendations.map((recommendation) => `- ${recommendation}`).join("\n");
+}
+
 async function main() {
   if (command !== "analyze") {
     console.log(`
@@ -65,8 +69,11 @@ Usage:
       bytecodePreview: result.bytecodePreview,
       securityScore: securityAnalysis.securityScore,
       securityRiskLevel: securityAnalysis.securityRiskLevel,
+      securityGrade: securityAnalysis.securityGrade,
       securityFindings: securityAnalysis.securityFindings,
       securityRecommendations: securityAnalysis.securityRecommendations,
+      aiSecuritySummary: securityAnalysis.aiSecuritySummary,
+      aiRecommendations: securityAnalysis.aiRecommendations,
     }, null, 2));
     return;
   }
@@ -90,13 +97,19 @@ Glamsterdam Status:
 🟡 Analysis Engine In Development
 
 Security Score:
-${securityAnalysis.securityScore}/100 (${securityAnalysis.securityRiskLevel})
+${securityAnalysis.securityScore}/100 (${securityAnalysis.securityRiskLevel}, Grade ${securityAnalysis.securityGrade})
 
 Security Findings:
 ${formatSecurityFindings(securityAnalysis.securityFindings)}
 
 Security Recommendations:
 ${formatSecurityRecommendations(securityAnalysis.securityRecommendations)}
+
+AI Security Summary:
+${securityAnalysis.aiSecuritySummary}
+
+AI Improvement Suggestions:
+${formatAiRecommendations(securityAnalysis.aiRecommendations)}
 
 Next Checks:
 - Gas repricing impact
