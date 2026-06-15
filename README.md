@@ -35,9 +35,13 @@ npm run build
 - Fetches deployed bytecode for an Ethereum contract address.
 - Reports contract bytecode size.
 - Estimates early gas-size risk as `LOW`, `MEDIUM`, or `HIGH`.
-- Leaves room for deeper EVM opcode compatibility and AI-assisted explanations.
+- Parses runtime bytecode opcodes while skipping `PUSH` data.
+- Reports Glamsterdam readiness findings for state access, external calls,
+  native ETH/log indexing assumptions, block context usage, and deprecated
+  opcodes.
+- Produces a readiness score, risk level, evidence, and recommendations.
 
 ## Project Status
 
-This project is in MVP foundation stage. The current CLI is intentionally small
-and is ready for additional Glamsterdam-specific analysis rules.
+This project is in MVP analyzer stage. The current CLI uses deterministic
+bytecode rules and is ready for ABI-aware and source-aware analysis.

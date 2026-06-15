@@ -58,6 +58,7 @@ async function fetchContractCode(address: string, options: FetchContractCodeOpti
     return {
       exists: true,
       address,
+      bytecode: code,
       bytecodeSize: (code.length - 2) / 2,
       bytecodePreview: code.slice(0, 100) + "...",
     };

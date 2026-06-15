@@ -3,8 +3,11 @@
 const _contractFetcher: any = require("../blockchain/contractFetcher");
 const fetchContractCode: any =
   _contractFetcher.fetchContractCode ?? _contractFetcher.default ?? _contractFetcher;
-const _gasAnalyzer: any = require("../gas-analysis/gasAnalyzer");
-const analyzeGasImpact: any = _gasAnalyzer.default ?? _gasAnalyzer;
+const _glamsterdamAnalyzer: any = require("../glamsterdam/glamsterdamAnalyzer");
+const analyzeGlamsterdamReadiness: any =
+  _glamsterdamAnalyzer.analyzeGlamsterdamReadiness ??
+  _glamsterdamAnalyzer.default ??
+  _glamsterdamAnalyzer;
 
 const args = process.argv.slice(2);
 
@@ -48,10 +51,16 @@ Environment:
     return;
   }
 
-  const gasImpact = analyzeGasImpact(result.bytecodeSize);
-  const warnings = gasImpact.warnings.length
-    ? gasImpact.warnings.map((warning: string) => `- ${warning}`).join("\n")
-    : "- No immediate gas-size warnings detected.";
+  const report = analyzeGlamsterdamReadiness(result.bytecode);
+  const findings = report.findings
+    .map(
+      (finding: any) =>
+        `- [${finding.severity}] ${finding.title}\n  Evidence: ${finding.evidence}\n  Recommendation: ${finding.recommendation}`
+    )
+    .join("\n");
+  const recommendations = report.recommendations
+    .map((recommendation: string) => `- ${recommendation}`)
+    .join("\n");
 
   console.log(`
 TrustShield AI - Contract Report
@@ -68,19 +77,24 @@ ${result.bytecodeSize} bytes
 Bytecode Preview:
 ${result.bytecodePreview}
 
-Gas Impact Score:
-${gasImpact.score}/100
+Glamsterdam Readiness Score:
+${report.readinessScore}/100
 
 Risk Level:
-${gasImpact.riskLevel}
+${report.riskLevel}
 
-Warnings:
-${warnings}
+Metrics:
+- State/account access ops: ${report.metrics.stateAccessOps}
+- External interaction ops: ${report.metrics.externalInteractionOps}
+- Log ops: ${report.metrics.logOps}
+- Block context ops: ${report.metrics.blockContextOps}
+- Deprecated ops: ${report.metrics.deprecatedOps}
 
-Next Checks:
-- EVM opcode compatibility
-- Contract optimization recommendations
-- AI-assisted explanation layer
+Findings:
+${findings}
+
+Recommendations:
+${recommendations}
 `);
 }
 
