@@ -53,6 +53,19 @@ ${report.issues.length ? report.issues.map((i: string) => `- ${i}`).join("\n") :
 Security Summary:
 ${report.summary}
 
+AI Security Insights:
+${report.insights.length
+  ? report.insights
+      .map(
+        (insight: any) => `
+[${insight.severity}] ${insight.title}
+Explanation: ${insight.explanation}
+Attack Scenario: ${insight.attackScenario}
+Fix Suggestion: ${insight.fixSuggestion}`
+      )
+      .join("\n")
+  : "- None"}
+
 Recommendations:
 ${report.recommendations.length ? report.recommendations.map((r: string) => `- ${r}`).join("\n") : "- None"}
 `);
