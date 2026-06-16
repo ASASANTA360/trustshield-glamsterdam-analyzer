@@ -30,6 +30,11 @@ async function main() {
     const sourceCode = fs.readFileSync(filePath, "utf8");
     const report = analyzeCairoContract(sourceCode);
 
+    if (options.outputJson) {
+  console.log(JSON.stringify(report, null, 2));
+  return;
+}
+
     console.log(`
 TrustShield AI — Cairo Security Report
 
