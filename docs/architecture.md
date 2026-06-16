@@ -1,44 +1,56 @@
-# TrustShield AI Architecture
+# TrustShield AI — Starknet Security Architecture
 
 ## Overview
 
-TrustShield AI is an open-source Ethereum upgrade readiness platform designed to analyze the impact of the Glamsterdam upgrade on smart contracts and developer infrastructure.
+TrustShield AI is an open-source AI-powered security intelligence platform designed to analyze Cairo smart contracts on Starknet.
 
-The system combines static contract analysis, gas impact estimation, and AI-assisted explanations to help developers understand potential upgrade risks.
+The platform combines static Cairo code analysis, AI-powered risk classification, vulnerability detection, and developer-friendly security reports to help developers identify security issues early and build safer decentralized applications.
 
 ## Core Components
 
-### 1. Contract Analyzer
+### 1. Cairo Contract Analyzer
 
-Analyzes smart contract bytecode, ABI, and metadata to identify patterns that may be affected by Glamsterdam changes.
+Analyzes Cairo smart contract source code to detect risky patterns, insecure logic, and potential security vulnerabilities.
 
-### 2. Gas Impact Engine
+### 2. Starknet Risk Engine
 
-Estimates how gas repricing may affect contract execution costs and identifies expensive operations.
+Generates security scores based on detected issues, vulnerability severity, and Starknet security best practices.
 
-### 3. Compatibility Engine
+### 3. AI Security Intelligence Layer
 
-Generates an upgrade readiness score and identifies possible migration concerns.
+Transforms technical findings into clear explanations, risk classifications, and actionable recommendations for developers.
 
-### 4. AI Insight Layer
+### 4. Security Report Generator
 
-Converts technical analysis into human-readable explanations and recommendations.
+Creates detailed security reports containing:
+- Overall risk score
+- Detected vulnerabilities
+- Severity levels
+- Security recommendations
 
 ## High-Level Flow
 
-Smart Contract Address
+Cairo Smart Contract Source
 |
 v
-Blockchain Data Collection
+TrustShield Cairo Analyzer
 |
 v
-Static Analysis Engine
+Starknet Risk Engine
 |
 v
-Gas Impact Evaluation
+AI Security Intelligence
 |
 v
-Compatibility Scoring
-|
-v
-AI Security Report
+Developer Security Report
+
+## Future Enhancements
+
+Future versions of TrustShield AI will include:
+
+- Starknet RPC integration
+- Automated contract fetching
+- Cairo vulnerability knowledge base
+- AI-assisted code remediation suggestions
+- Public API for developer integrations
+- Community-contributed security rules
