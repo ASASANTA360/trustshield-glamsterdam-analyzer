@@ -37,15 +37,16 @@
     ]
   },
   "exclude": [
-    "src/app",
-    "next-env.d.ts"
+    "node_modules",
+    ".next",
+    "dist"
   ],
   "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.mts",
-    "**/*.ts",
-    "**/*.tsx"
+    "src/gas-analysis/**/*.ts",
+    "src/glamsterdam/**/*.ts",
+    "src/blockchain/**/*.ts",
+    "src/platform/**/*.ts",
+    "src/cli/**/*.ts",
+    "src/global.d.ts"
   ]
 }
