@@ -36,11 +36,20 @@ TrustShield AI — Cairo Security Report
 Risk Score: ${report.riskScore}
 Risk Level: ${report.riskLevel}
 
+Findings:
+LOW: ${report.findings.low}
+MEDIUM: ${report.findings.medium}
+HIGH: ${report.findings.high}
+CRITICAL: ${report.findings.critical}
+
 Issues:
 ${report.issues.length ? report.issues.map((i: string) => `- ${i}`).join("\n") : "- None detected"}
 
+Security Summary:
+${report.summary}
+
 Recommendations:
-${report.recommendations.map((r: string) => `- ${r}`).join("\n")}
+${report.recommendations.length ? report.recommendations.map((r: string) => `- ${r}`).join("\n") : "- None"}
 `);
 
     return;
@@ -74,7 +83,9 @@ Networks:
     console.log(`Connecting to ${options.network}...`);
   }
 
-  const result = await fetchContractCode(options.address, { network: options.network });
+  const result = await fetchContractCode(options.address, {
+    network: options.network,
+  });
 
   if (!result.exists) {
     console.log(result.message);
