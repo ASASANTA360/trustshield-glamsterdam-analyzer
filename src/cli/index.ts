@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
-const _contractFetcher: any = require("../blockchain/contractFetcher");
-const fetchContractCode: any =
-  _contractFetcher.fetchContractCode ?? _contractFetcher.default ?? _contractFetcher;
-const _glamsterdamAnalyzer: any = require("../glamsterdam/glamsterdamAnalyzer");
-const analyzeGlamsterdamReadiness: any =
-  _glamsterdamAnalyzer.analyzeGlamsterdamReadiness ??
-  _glamsterdamAnalyzer.default ??
-  _glamsterdamAnalyzer;
+import fs from "node:fs";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+
+const { fetchContractCode } = require("../blockchain/contractFetcher");
+const { analyzeGlamsterdamReadiness } = require("../glamsterdam/glamsterdamAnalyzer");
 const { parseCliOptions } = require("./cliOptions");
 const { getSupportedNetworks } = require("../blockchain/networks");
 const { formatHumanReport, formatJsonReport } = require("./reportFormatter");
+const { analyzeCairoContract } = require("../starknet/cairoAnalyzer");
 
 const options = parseCliOptions(process.argv.slice(2));
 
@@ -19,19 +19,40 @@ function isValidEthereumAddress(addr?: string): boolean {
 }
 
 async function main() {
+  if (options.command === "analyze-cairo") {
+    const filePath = options.address;
+
+    if (!filePath || !fs.existsSync(filePath)) {
+      console.error("Cairo file not found. Usage: trustshield analyze-cairo <file.cairo>");
+      process.exit(1);
+    }
+
+    const sourceCode = fs.readFileSync(filePath, "utf8");
+    const report = analyzeCairoContract(sourceCode);
+
+    console.log(`
+TrustShield AI — Cairo Security Report
+
+Risk Score: ${report.riskScore}
+Risk Level: ${report.riskLevel}
+
+Issues:
+${report.issues.length ? report.issues.map((i: string) => `- ${i}`).join("\n") : "- None detected"}
+
+Recommendations:
+${report.recommendations.map((r: string) => `- ${r}`).join("\n")}
+`);
+
+    return;
+  }
+
   if (options.command !== "analyze") {
     console.log(`
 TrustShield AI - Glamsterdam Analyzer
 
 Usage:
   trustshield analyze <contract-address> [--network <network>] [--json]
-
-Environment:
-  ETH_RPC_URL        Ethereum JSON-RPC endpoint
-  BASE_RPC_URL       Base JSON-RPC endpoint
-  POLYGON_RPC_URL    Polygon JSON-RPC endpoint
-  ARBITRUM_RPC_URL   Arbitrum JSON-RPC endpoint
-  RPC_TIMEOUT_MS     RPC timeout in milliseconds
+  trustshield analyze-cairo <file.cairo>
 
 Networks:
   ${getSupportedNetworks().join(", ")} (default: ethereum)
